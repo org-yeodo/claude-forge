@@ -1,5 +1,5 @@
 ---
-description: Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.
+description: AI가 구현 계획을 세워줍니다. 확인 후 코딩 시작.
 ---
 
 # Plan Command
@@ -111,3 +111,12 @@ After planning:
 
 This command invokes the `planner` agent located at:
 `~/.claude/agents/planner.md`
+
+---
+
+## 다음 단계
+
+| 계획이 확정되면 | 커맨드 |
+|:---------------|:-------|
+| 테스트하면서 구현 | `/tdd` |
+| 한 번에 자동 실행 | `/auto` |

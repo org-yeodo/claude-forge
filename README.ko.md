@@ -52,6 +52,18 @@ claude
 
 이것으로 끝. 모든 에이전트, 커맨드, 훅, 규칙이 즉시 사용 가능합니다.
 
+### 처음이신가요?
+
+개발이 처음이거나 Claude Code가 낯설다면, 여기서 시작하세요:
+
+| 단계 | 할 일 |
+|:----:|:------|
+| 1 | 설치 후 `/guide` 실행 -- 3분 인터랙티브 투어 |
+| 2 | [첫 사용자 가이드](docs/FIRST-STEPS.md) 읽기 -- 용어 사전 + TOP 5 커맨드 |
+| 3 | [상황별 레시피](docs/WORKFLOW-RECIPES.md) 보기 -- 복사해서 쓰는 5가지 시나리오 |
+
+또는 `/auto 로그인 페이지 만들기`를 입력하면, 계획부터 PR까지 알아서 진행합니다.
+
 ---
 
 ## 🔄 개발 워크플로우
@@ -392,7 +404,7 @@ claude-forge/
 |:-------|:-----|
 | `/build-fix` | 빌드 오류 자동 수정 |
 | `/checkpoint` | 현재 상태 체크포인트 저장 |
-| `/code-review` | 코드 리뷰 실행 |
+| `/code-review` | 방금 작성한 코드를 보안+품질 검사 |
 | `/commit-push-pr` | 커밋, 푸시, PR 생성 자동화 |
 | `/debugging-strategies` | 디버깅 전략 가이드 |
 | `/dependency-upgrade` | 의존성 업그레이드 관리 |
@@ -400,14 +412,14 @@ claude-forge/
 | `/eval` | 코드 모델 평가 |
 | `/evaluating-code-models` | 코드 모델 벤치마크 |
 | `/evaluating-llms-harness` | LLM 하네스 평가 |
-| `/explore` | 코드베이스 탐색 |
+| `/explore` | 코드베이스를 탐색하여 구조를 파악 |
 | `/extract-errors` | 오류 추출 및 분석 |
-| `/handoff-verify` | Fresh 컨텍스트 검증 |
+| `/handoff-verify` | 빌드/테스트/린트 한 번에 자동 검증 |
 | `/init-project` | 프로젝트 초기 설정 |
 | `/learn` | 학습 및 지식 축적 |
 | `/next-task` | 다음 작업 할당 |
 | `/orchestrate` | Agent Teams 멀티 에이전트 구성 |
-| `/plan` | 구현 계획 수립 |
+| `/plan` | AI가 구현 계획을 세워줍니다 |
 | `/pull` | 원격 변경사항 가져오기 |
 | `/quick-commit` | 빠른 커밋 & 푸시 |
 | `/refactor-clean` | 리팩토링 및 코드 정리 |
@@ -418,7 +430,7 @@ claude-forge/
 | `/summarize` | 코드/문서 요약 |
 | `/sync-docs` | 문서 동기화 |
 | `/sync` | 전체 동기화 |
-| `/tdd` | 테스트 주도 개발 실행 |
+| `/tdd` | 테스트 먼저 만들고 코드 작성 |
 | `/test-coverage` | 테스트 커버리지 분석 |
 | `/update-codemaps` | 코드맵 업데이트 |
 | `/update-docs` | 문서 업데이트 |
@@ -426,6 +438,9 @@ claude-forge/
 | `/web-checklist` | 웹 체크리스트 검사 |
 | `/worktree-cleanup` | 워크트리 정리 |
 | `/worktree-start` | 워크트리 시작 |
+| `/auto` | 계획부터 PR까지 원버튼 자동 실행 |
+| `/guide` | 처음 사용자를 위한 3분 인터랙티브 가이드 |
+| `/show-setup` | 설치 상태와 프로젝트 정보 보기 |
 
 </details>
 

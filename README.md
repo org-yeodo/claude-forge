@@ -53,6 +53,18 @@ claude
 
 `install.sh` symlinks everything to `~/.claude/`, so `git pull` updates instantly.
 
+### New here?
+
+If you're new to development or Claude Code, start with these:
+
+| Step | What to do |
+|:-----|:-----------|
+| 1 | Run `/guide` after install -- an interactive 3-minute tour |
+| 2 | Read [First Steps](docs/FIRST-STEPS.md) -- glossary + TOP 5 commands |
+| 3 | Browse [Workflow Recipes](docs/WORKFLOW-RECIPES.md) -- 5 copy-paste scenarios |
+
+Or just type `/auto login page` and let Claude Forge handle the entire plan-to-PR pipeline for you.
+
 ---
 
 ## 🔄 Development Workflows
@@ -87,11 +99,11 @@ graph LR
 
 | Step | What happens |
 |:-----|:-------------|
-| `/plan` | Restate requirements, assess risks, create step-by-step plan. Wait for user confirmation. |
-| `/tdd` | Write tests first (RED), implement minimal code (GREEN), refactor (IMPROVE). Target 80%+ coverage. |
-| `/code-review` | Automated security + quality review of all uncommitted changes. |
-| `/handoff-verify` | Record intent, then spawn a fresh-context agent to validate build/lint/test independently. |
-| `/commit-push-pr` | Run full verification, commit, push, create PR, optionally merge. |
+| `/plan` | AI creates an implementation plan. Waits for your confirmation before coding. |
+| `/tdd` | Write tests first, then code. One unit of work at a time. |
+| `/code-review` | Security + quality check on the code you just wrote. |
+| `/handoff-verify` | Auto-verify build/test/lint all at once. |
+| `/commit-push-pr` | Commit, push, create PR, and optionally merge -- all in one. |
 
 ### Bug Fix
 
@@ -103,8 +115,8 @@ Fast turnaround for bug fixes with automatic retry:
 
 | Step | What happens |
 |:-----|:-------------|
-| `/explore` | Navigate and analyze codebase to understand the issue. |
-| `/tdd` | Write a failing test that reproduces the bug, then fix it. |
+| `/explore` | Navigate the codebase to find where the bug lives. |
+| `/tdd` | Write a test that reproduces the bug, then fix it. |
 | `/verify-loop` | Auto-retry build/lint/test up to 3 times with auto-fix on failure. |
 | `/quick-commit` | Fast commit for simple, well-tested changes. |
 
@@ -364,13 +376,15 @@ claude-forge/
 
 | Command | Description |
 |:--------|:------------|
-| `/plan` | Design implementation plan, assess risks. Wait for user confirmation. |
-| `/tdd` | Test-driven development: tests first, then minimal implementation. |
-| `/code-review` | Security + quality review of uncommitted changes. |
-| `/handoff-verify` | Record intent + fresh-context agent validation. |
-| `/commit-push-pr` | Full verification → commit → push → PR → optional merge. |
+| `/plan` | AI creates implementation plan. Waits for confirmation before coding. |
+| `/tdd` | Write tests first, then code. One unit of work at a time. |
+| `/code-review` | Security + quality check on code you just wrote. |
+| `/handoff-verify` | Auto-verify build/test/lint all at once. |
+| `/commit-push-pr` | Commit, push, create PR, optionally merge -- all in one. |
 | `/quick-commit` | Fast commit for simple, well-tested changes. |
 | `/verify-loop` | Auto-retry build/lint/test up to 3x with auto-fix. |
+| `/auto` | One-button automation: plan to PR without stopping. |
+| `/guide` | Interactive 3-minute tour for first-time users. |
 
 #### Exploration & Analysis
 

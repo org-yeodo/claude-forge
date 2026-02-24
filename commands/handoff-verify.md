@@ -1,6 +1,6 @@
 ---
 allowed-tools: Bash(git:*), Bash(npm:*), Bash(pnpm:*), Bash(npx:*), Read, Write, Edit, Glob, Grep, Task
-description: 개발 완료 → 의도 기록 + 새 컨텍스트 자동 검증 (v6 핵심)
+description: 빌드/테스트/린트를 한 번에 자동 검증합니다.
 argument-hint: [--once] [--loop N] [--security] [--coverage] [--extract] [--skip-handoff]
 ---
 

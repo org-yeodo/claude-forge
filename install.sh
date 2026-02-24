@@ -420,17 +420,23 @@ main() {
         cat << COMPLETE
 
   ${GREEN}╔══════════════════════════════════════════════════════╗
-  ║           Claude Forge installed!                    ║
+  ║           Claude Forge 설치 완료!                    ║
   ╠══════════════════════════════════════════════════════╣
-  ║  11 agents · 36 commands · 6-layer security         ║
+  ║  11 agents · 36+ commands · 6-layer security        ║
   ╚══════════════════════════════════════════════════════╝${NC}
 
-  Next steps:
-    1. Open a new terminal
-    2. Run 'claude' to start
-    3. Run 'claude mcp list' to verify MCP servers
+  처음이신가요? 이것만 하세요:
+    1. 새 터미널을 열고 'claude' 실행
+    2. ${GREEN}/guide${NC} 입력 — 3분 인터랙티브 가이드
 
-  ${YELLOW}★ Star us if this helped: github.com/sangrokjung/claude-forge${NC}
+  자주 쓰는 TOP 5:
+    /plan           AI가 구현 계획을 세워줍니다
+    /tdd            테스트 먼저 만들고 코드 작성
+    /code-review    코드 보안+품질 검사
+    /handoff-verify 빌드/테스트/린트 자동 검증
+    /auto           계획부터 PR까지 원버튼 자동
+
+  ${YELLOW}★ Star: github.com/sangrokjung/claude-forge${NC}
   ${YELLOW}? Issues: github.com/sangrokjung/claude-forge/issues${NC}
 
 COMPLETE

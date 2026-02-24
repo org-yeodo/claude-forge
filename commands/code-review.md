@@ -1,3 +1,7 @@
+---
+description: 방금 작성한 코드를 보안+품질 검사합니다.
+---
+
 # Code Review
 
 Comprehensive security and quality review of uncommitted changes:
@@ -38,3 +42,12 @@ Comprehensive security and quality review of uncommitted changes:
 4. Block commit if CRITICAL or HIGH issues found
 
 Never approve code with security vulnerabilities!
+
+---
+
+## 다음 단계
+
+| 리뷰 후 | 커맨드 |
+|:--------|:-------|
+| 빌드/테스트 검증 | `/handoff-verify` |
+| 바로 커밋 | `/commit-push-pr` |

@@ -1,5 +1,5 @@
 ---
-description: Enforce test-driven development workflow. Scaffold interfaces, generate tests FIRST, then implement minimal code to pass. Ensure 80%+ coverage.
+description: 테스트 먼저 만들고 코드 작성. 한 단위 작업에 사용.
 ---
 
 # TDD Command
@@ -324,3 +324,12 @@ This command invokes the `tdd-guide` agent located at:
 
 And can reference the `tdd-workflow` skill at:
 `~/.claude/skills/tdd-workflow/`
+
+---
+
+## 다음 단계
+
+| 구현이 끝나면 | 커맨드 |
+|:-------------|:-------|
+| 코드 검사 | `/code-review` |
+| 빌드/테스트 검증 | `/handoff-verify` |

@@ -58,4 +58,9 @@ if [[ -n "$MSG" ]]; then
     echo "$MSG" >&2
 fi
 
+# 첫 사용자 감지: 온보딩 마커가 없으면 /guide 안내
+if [[ ! -f "$HOME/.claude/.forge-onboarded" ]]; then
+    echo "[Claude Forge] 처음이신가요? /guide 로 시작해보세요." >&2
+fi
+
 exit 0
