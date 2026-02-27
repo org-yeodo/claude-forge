@@ -123,7 +123,7 @@ link_files() {
     mkdir -p "$CLAUDE_DIR"
 
     # Directories
-    for dir in agents rules commands scripts skills hooks cc-chips; do
+    for dir in agents rules commands scripts skills hooks cc-chips cc-chips-custom; do
         if [ -d "$REPO_DIR/$dir" ]; then
             rm -rf "$CLAUDE_DIR/$dir" 2>/dev/null || true
             if [ "$use_copy" = true ]; then
@@ -362,7 +362,7 @@ verify() {
 
     local errors=0
 
-    for item in agents rules commands scripts skills cc-chips hooks settings.json; do
+    for item in agents rules commands scripts skills cc-chips cc-chips-custom hooks settings.json; do
         if [ -L "$CLAUDE_DIR/$item" ] && [ ! -e "$CLAUDE_DIR/$item" ]; then
             echo -e "  ${RED}✗${NC} $item (broken symlink)"
             errors=$((errors + 1))
