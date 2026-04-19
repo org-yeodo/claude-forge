@@ -41,5 +41,37 @@
       "args": ["-y", "jina-mcp-tools"],
       "description": "URL-to-markdown via Jina AI (token-efficient)"
     }
+  },
+  "install_commands": {
+    "_comment": "install.sh에서 eval()로 실행되는 claude mcp add 명령어",
+
+    "context7":            "claude mcp add context7 -- npx -y @upstash/context7-mcp@latest",
+    "sequential-thinking": "claude mcp add sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking",
+    "memory":              "claude mcp add memory -- npx -y @modelcontextprotocol/server-memory",
+    "youtube-transcript":  "claude mcp add youtube-transcript -- npx -y youtube-transcript-mcp",
+    "remotion":            "claude mcp add remotion -- npx -y @remotion/mcp",
+    "playwright":          "claude mcp add playwright -- npx -y @playwright/mcp@latest",
+    "desktop-commander":   "claude mcp add desktop-commander -- npx -y @wonderwhy-er/desktop-commander",
+
+    "exa":                 "claude mcp add exa --transport http https://mcp.exa.ai/mcp",
+    "gmail":               "claude mcp add gmail -- npx -y gmail-mcp",
+    "google-calendar":     "claude mcp add google-calendar -- npx -y @cocal/google-calendar-mcp",
+    "n8n-mcp":             "claude mcp add n8n-mcp -- npx -y n8n-mcp",
+    "hyperbrowser":        "claude mcp add hyperbrowser -- npx -y hyperbrowser-mcp",
+    "stitch":              "claude mcp add stitch -- npx -y stitch-mcp",
+    "sentry":              "claude mcp add sentry -- npx -y @sentry/mcp-server",
+    "supabase":            "claude mcp add supabase -- npx -y @supabase/mcp-server-supabase",
+    "github":              "claude mcp add github -- npx -y @modelcontextprotocol/server-github",
+
+    "data-go-nts":         "claude mcp add data-go-nts -- npx -y @smithery/cli@latest run @data-go/nts-mcp --client claude",
+    "data-go-nps":         "claude mcp add data-go-nps -- npx -y @smithery/cli@latest run @data-go/nps-mcp --client claude",
+    "data-go-pps":         "claude mcp add data-go-pps -- npx -y @smithery/cli@latest run @data-go/pps-mcp --client claude",
+    "data-go-fsc":         "claude mcp add data-go-fsc -- npx -y @smithery/cli@latest run @data-go/fsc-mcp --client claude",
+    "data-go-msds":        "claude mcp add data-go-msds -- npx -y @smithery/cli@latest run @data-go/msds-mcp --client claude",
+
+    "coingecko":           "claude mcp add coingecko -- npx -y @coingecko/coingecko-mcp",
+    "alpha-vantage":       "claude mcp add alpha-vantage -- npx -y alpha-vantage-mcp",
+    "fred":                "claude mcp add fred -- npx -y fred-mcp-server",
+    "korea-stock":         "claude mcp add korea-stock -- npx -y korea-stock-mcp"
   }
 }
