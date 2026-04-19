@@ -4,7 +4,7 @@ set -e
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
 
-# Detect platform
+# 플랫폼 감지
 detect_platform() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
         PLATFORM="macos"
@@ -33,18 +33,18 @@ cat << 'BANNER'
    github.com/sangrokjung/claude-forge
 
 BANNER
-echo "Platform: $PLATFORM ($ARCH)"
+echo "플랫폼: $PLATFORM ($ARCH)"
 echo ""
 
-# Colors
+# 색상
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# 1. Check dependencies
+# 1. 의존성 확인
 check_deps() {
-    echo "Checking dependencies..."
+    echo "의존성 확인 중..."
     local missing=()
 
     command -v node >/dev/null || missing+=("node")
@@ -52,187 +52,184 @@ check_deps() {
     command -v git >/dev/null || missing+=("git")
 
     if [ ${#missing[@]} -gt 0 ]; then
-        echo -e "${RED}Missing dependencies: ${missing[*]}${NC}"
+        echo -e "${RED}누락된 의존성: ${missing[*]}${NC}"
         echo ""
         case "$PLATFORM" in
             macos)
-                echo "Install with: brew install ${missing[*]}"
+                echo "설치 방법: brew install ${missing[*]}"
                 ;;
             wsl|linux)
-                echo "Install with: sudo apt install ${missing[*]}"
-                echo "  or: curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -"
+                echo "설치 방법: sudo apt install ${missing[*]}"
+                echo "  또는: curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -"
                 ;;
             *)
-                echo "Install with your package manager"
+                echo "패키지 매니저로 설치하세요"
                 ;;
         esac
         echo ""
-        echo -e "${YELLOW}Need help? github.com/sangrokjung/claude-forge/issues${NC}"
+        echo -e "${YELLOW}도움이 필요하신가요? github.com/sangrokjung/claude-forge/issues${NC}"
         exit 1
     fi
 
-    echo -e "${GREEN}All dependencies satisfied${NC}"
+    echo -e "${GREEN}모든 의존성 확인 완료${NC}"
 }
 
-# 2. Initialize git submodules (cc-chips)
+# 2. git 서브모듈 초기화 (cc-chips)
 init_submodules() {
     echo ""
-    echo "Initializing git submodules..."
+    echo "git 서브모듈 초기화 중..."
 
     cd "$REPO_DIR"
     git submodule update --init --recursive 2>/dev/null && \
-        echo -e "${GREEN}Submodules initialized (cc-chips)${NC}" || \
-        echo -e "${YELLOW}Submodule init skipped (may already be initialized)${NC}"
+        echo -e "${GREEN}서브모듈 초기화 완료 (cc-chips)${NC}" || \
+        echo -e "${YELLOW}서브모듈 초기화 건너뜀 (이미 초기화되었을 수 있음)${NC}"
 }
 
-# 3. Backup existing config
+# 3. 기존 설정 백업
 backup() {
     if [ -d "$CLAUDE_DIR" ]; then
         local backup_dir="$CLAUDE_DIR.backup.$(date +%Y%m%d_%H%M%S)"
         echo ""
-        echo -e "${YELLOW}Existing ~/.claude found${NC}"
-        read -p "Backup to $backup_dir? (y/n) " -n 1 -r
+        echo -e "${YELLOW}기존 ~/.claude 폴더가 발견되었습니다${NC}"
+        read -p "$backup_dir 에 백업하시겠습니까? (y/n) " -n 1 -r
         echo ""
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             mv "$CLAUDE_DIR" "$backup_dir"
-            echo -e "${GREEN}Backed up to $backup_dir${NC}"
+            echo -e "${GREEN}$backup_dir 에 백업 완료${NC}"
         else
-            echo "Skipping backup. Existing files may be overwritten."
+            echo "백업 건너뜀. 기존 파일이 덮어쓰여질 수 있습니다."
         fi
     fi
 }
 
-# 4. Create symlinks (or copies on WSL cross-filesystem)
+# 4. 심볼릭 링크 생성 (WSL 크로스 파일시스템은 복사 사용)
 link_files() {
     echo ""
 
-    # WSL: if repo is on Windows filesystem (/mnt/c/...), use copies instead of symlinks
     local use_copy=false
     if [[ "$PLATFORM" == "wsl" ]] && [[ "$REPO_DIR" == /mnt/* ]]; then
-        echo -e "${YELLOW}WSL detected with Windows filesystem path. Using copies instead of symlinks.${NC}"
-        echo "  Tip: Clone repo to ~/claude-forge for symlink support."
+        echo -e "${YELLOW}WSL에서 Windows 파일시스템 경로 감지. 심볼릭 링크 대신 복사를 사용합니다.${NC}"
+        echo "  팁: 심볼릭 링크를 사용하려면 저장소를 ~/claude-forge 로 이동하세요."
         use_copy=true
     fi
 
     if [ "$use_copy" = true ]; then
-        echo "Copying configuration files..."
+        echo "설정 파일 복사 중..."
     else
-        echo "Creating symlinks..."
+        echo "심볼릭 링크 생성 중..."
     fi
 
     mkdir -p "$CLAUDE_DIR"
 
-    # Directories
+    # 디렉토리
     for dir in agents rules commands scripts skills hooks cc-chips cc-chips-custom; do
         if [ -d "$REPO_DIR/$dir" ]; then
             rm -rf "$CLAUDE_DIR/$dir" 2>/dev/null || true
             if [ "$use_copy" = true ]; then
                 cp -r "$REPO_DIR/$dir" "$CLAUDE_DIR/$dir"
-                echo "  Copied: $dir/"
+                echo "  복사: $dir/"
             else
                 ln -sf "$REPO_DIR/$dir" "$CLAUDE_DIR/$dir"
-                echo "  Linked: $dir/"
+                echo "  링크: $dir/"
             fi
         fi
     done
 
-    # Files
+    # 파일
     for file in settings.json; do
         if [ -f "$REPO_DIR/$file" ]; then
             rm -f "$CLAUDE_DIR/$file" 2>/dev/null || true
             if [ "$use_copy" = true ]; then
                 cp "$REPO_DIR/$file" "$CLAUDE_DIR/$file"
-                echo "  Copied: $file"
+                echo "  복사: $file"
             else
                 ln -sf "$REPO_DIR/$file" "$CLAUDE_DIR/$file"
-                echo "  Linked: $file"
+                echo "  링크: $file"
             fi
         fi
     done
 }
 
-# 5. Apply CC CHIPS custom overlay
+# 5. CC CHIPS 커스텀 오버레이 적용
 apply_cc_chips_custom() {
     local custom_dir="$REPO_DIR/cc-chips-custom"
     if [ -d "$custom_dir" ]; then
         echo ""
-        echo "Applying CC CHIPS custom overlay..."
+        echo "CC CHIPS 커스텀 오버레이 적용 중..."
         local target="$CLAUDE_DIR/cc-chips"
 
         if [ -f "$custom_dir/engine.sh" ] && [ -d "$target" ]; then
             cp "$custom_dir/engine.sh" "$target/engine.sh"
             chmod +x "$target/engine.sh"
-            echo -e "  ${GREEN}✓${NC} engine.sh (model detection + session ID + cache stats)"
+            echo -e "  ${GREEN}✓${NC} engine.sh (모델 감지 + 세션 ID + 캐시 통계)"
         fi
 
         if [ -d "$custom_dir/themes" ] && [ -d "$target/themes" ]; then
             cp "$custom_dir/themes/"*.sh "$target/themes/" 2>/dev/null
-            echo -e "  ${GREEN}✓${NC} themes/ (stats chip colors)"
+            echo -e "  ${GREEN}✓${NC} themes/ (통계 칩 색상)"
         fi
 
-        echo -e "${GREEN}CC CHIPS custom overlay applied!${NC}"
+        echo -e "${GREEN}CC CHIPS 커스텀 오버레이 적용 완료!${NC}"
     fi
 }
 
-# 6. Install MCP servers
+# 6. MCP 서버 설치
 install_mcp_servers() {
     echo ""
-    echo "Installing MCP servers..."
+    echo "MCP 서버 설치 중..."
 
-    # Check if claude CLI is available
     if ! command -v claude >/dev/null; then
-        echo -e "${YELLOW}Claude CLI not found. Skipping MCP server installation.${NC}"
-        echo "Install Claude CLI first, then re-run this script."
+        echo -e "${YELLOW}Claude CLI를 찾을 수 없습니다. MCP 서버 설치를 건너뜁니다.${NC}"
+        echo "Claude CLI를 먼저 설치한 후 이 스크립트를 다시 실행하세요."
         return 0
     fi
 
-    read -p "Install recommended MCP servers? (y/n) " -n 1 -r
+    read -p "권장 MCP 서버를 설치하시겠습니까? (y/n) " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Skipping MCP server installation."
+        echo "MCP 서버 설치를 건너뜁니다."
         return 0
     fi
 
-    # Read install commands from mcp-servers.json if available
     local mcp_json="$REPO_DIR/mcp-servers.json"
     if [ -f "$mcp_json" ] && command -v jq >/dev/null; then
-        echo "  Installing from mcp-servers.json..."
+        echo "  mcp-servers.json 에서 설치 중..."
 
-        # Core servers (no API key required)
+        # 핵심 서버 (API 키 불필요)
         local core_servers=("context7" "sequential-thinking" "memory" "youtube-transcript" "remotion" "playwright" "desktop-commander")
         for server in "${core_servers[@]}"; do
             local cmd
             cmd=$(jq -r ".install_commands.\"$server\" // empty" "$mcp_json")
             if [ -n "$cmd" ]; then
-                echo "  Installing $server..."
+                echo "  $server 설치 중..."
                 eval "$cmd" 2>/dev/null && \
                     echo -e "  ${GREEN}✓${NC} $server" || \
-                    echo -e "  ${YELLOW}!${NC} $server (already installed or failed)"
+                    echo -e "  ${YELLOW}!${NC} $server (이미 설치됨 또는 실패)"
             fi
         done
 
-        # Optional servers
+        # 선택 서버
         echo ""
-        echo -e "${YELLOW}Optional servers (may require authentication):${NC}"
+        echo -e "${YELLOW}선택 서버 (인증이 필요할 수 있음):${NC}"
 
         local optional_servers=("exa" "gmail" "google-calendar" "n8n-mcp" "hyperbrowser" "stitch" "sentry" "supabase" "github")
         for server in "${optional_servers[@]}"; do
             local cmd
             cmd=$(jq -r ".install_commands.\"$server\" // empty" "$mcp_json")
             if [ -n "$cmd" ]; then
-                read -p "  Install $server? (y/n) " -n 1 -r
+                read -p "  $server 설치하시겠습니까? (y/n) " -n 1 -r
                 echo ""
                 if [[ $REPLY =~ ^[Yy]$ ]]; then
                     eval "$cmd" 2>/dev/null && \
                         echo -e "  ${GREEN}✓${NC} $server" || \
-                        echo -e "  ${YELLOW}!${NC} $server (already installed or failed)"
+                        echo -e "  ${YELLOW}!${NC} $server (이미 설치됨 또는 실패)"
                 fi
             fi
         done
 
-        # Korean public data servers
+        # 한국 공공데이터 서버
         echo ""
-        read -p "  Install Korean public data servers (NTS, NPS, PPS, FSC, MSDS)? (y/n) " -n 1 -r
+        read -p "  한국 공공데이터 서버 설치하시겠습니까? (국세청, 국민연금, 공무원연금, 금융위, 기상청) (y/n) " -n 1 -r
         echo ""
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             for server in "data-go-nts" "data-go-nps" "data-go-pps" "data-go-fsc" "data-go-msds"; do
@@ -241,14 +238,14 @@ install_mcp_servers() {
                 if [ -n "$cmd" ]; then
                     eval "$cmd" 2>/dev/null && \
                         echo -e "  ${GREEN}✓${NC} $server" || \
-                        echo -e "  ${YELLOW}!${NC} $server (already installed or failed)"
+                        echo -e "  ${YELLOW}!${NC} $server (이미 설치됨 또는 실패)"
                 fi
             done
         fi
 
-        # Financial data servers
+        # 금융 데이터 서버
         echo ""
-        read -p "  Install financial data servers (CoinGecko, Alpha Vantage, FRED, Korea Stock)? (y/n) " -n 1 -r
+        read -p "  금융 데이터 서버 설치하시겠습니까? (CoinGecko, Alpha Vantage, FRED, 한국주식) (y/n) " -n 1 -r
         echo ""
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             for server in "coingecko" "alpha-vantage" "fred" "korea-stock"; do
@@ -257,13 +254,13 @@ install_mcp_servers() {
                 if [ -n "$cmd" ]; then
                     eval "$cmd" 2>/dev/null && \
                         echo -e "  ${GREEN}✓${NC} $server" || \
-                        echo -e "  ${YELLOW}!${NC} $server (already installed or failed)"
+                        echo -e "  ${YELLOW}!${NC} $server (이미 설치됨 또는 실패)"
                 fi
             done
         fi
     else
-        # Fallback: minimal install without mcp-servers.json
-        echo "  Installing core MCP servers..."
+        # mcp-servers.json 없을 때 최소 설치
+        echo "  핵심 MCP 서버 설치 중..."
 
         claude mcp add context7 -- npx -y @upstash/context7-mcp 2>/dev/null && \
             echo -e "  ${GREEN}✓${NC} context7" || echo -e "  ${YELLOW}!${NC} context7"
@@ -279,51 +276,51 @@ install_mcp_servers() {
     fi
 
     echo ""
-    echo -e "${GREEN}MCP server installation complete!${NC}"
-    echo "Run 'claude mcp list' to verify installed servers."
+    echo -e "${GREEN}MCP 서버 설치 완료!${NC}"
+    echo "'claude mcp list' 명령어로 설치된 서버를 확인하세요."
 }
 
-# 7. Install external skills (npx skills)
+# 7. 외부 스킬 설치 (npx skills)
 install_external_skills() {
     echo ""
-    echo "Installing external skills..."
+    echo "외부 스킬 설치 중..."
 
     if ! command -v npx >/dev/null; then
-        echo -e "${YELLOW}npx not found. Skipping external skills installation.${NC}"
+        echo -e "${YELLOW}npx를 찾을 수 없습니다. 외부 스킬 설치를 건너뜁니다.${NC}"
         return 0
     fi
 
-    read -p "Install external skills (Superpowers, Humanizer, UI/UX Pro Max, Find Skills)? (y/n) " -n 1 -r
+    read -p "외부 스킬을 설치하시겠습니까? (Superpowers, Humanizer, UI/UX Pro Max, Find Skills) (y/n) " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Skipping external skills installation."
+        echo "외부 스킬 설치를 건너뜁니다."
         return 0
     fi
 
-    echo "  Installing Superpowers (14 skills)..."
+    echo "  Superpowers 설치 중 (스킬 14개)..."
     npx -y skills add obra/superpowers -y -g 2>/dev/null && \
-        echo -e "  ${GREEN}✓${NC} superpowers" || echo -e "  ${YELLOW}!${NC} superpowers (failed)"
+        echo -e "  ${GREEN}✓${NC} superpowers" || echo -e "  ${YELLOW}!${NC} superpowers (실패)"
 
-    echo "  Installing Humanizer..."
+    echo "  Humanizer 설치 중..."
     npx -y skills add blader/humanizer -y -g 2>/dev/null && \
-        echo -e "  ${GREEN}✓${NC} humanizer" || echo -e "  ${YELLOW}!${NC} humanizer (failed)"
+        echo -e "  ${GREEN}✓${NC} humanizer" || echo -e "  ${YELLOW}!${NC} humanizer (실패)"
 
-    echo "  Installing UI/UX Pro Max..."
+    echo "  UI/UX Pro Max 설치 중..."
     npx -y skills add nextlevelbuilder/ui-ux-pro-max-skill -y -g 2>/dev/null && \
-        echo -e "  ${GREEN}✓${NC} ui-ux-pro-max" || echo -e "  ${YELLOW}!${NC} ui-ux-pro-max (failed)"
+        echo -e "  ${GREEN}✓${NC} ui-ux-pro-max" || echo -e "  ${YELLOW}!${NC} ui-ux-pro-max (실패)"
 
-    echo "  Installing Find Skills..."
+    echo "  Find Skills 설치 중..."
     npx -y skills add vercel-labs/skills -y -g 2>/dev/null && \
-        echo -e "  ${GREEN}✓${NC} find-skills" || echo -e "  ${YELLOW}!${NC} find-skills (failed)"
+        echo -e "  ${GREEN}✓${NC} find-skills" || echo -e "  ${YELLOW}!${NC} find-skills (실패)"
 
     echo ""
-    echo -e "${GREEN}External skills installation complete!${NC}"
+    echo -e "${GREEN}외부 스킬 설치 완료!${NC}"
 }
 
-# 8. Setup shell aliases
+# 8. 쉘 alias 설정
 setup_shell_aliases() {
     echo ""
-    echo "Setting up shell aliases..."
+    echo "쉘 alias 설정 중..."
 
     local shell_rc=""
     if [ -n "$ZSH_VERSION" ] || [ -f "$HOME/.zshrc" ]; then
@@ -333,13 +330,13 @@ setup_shell_aliases() {
     fi
 
     if [ -z "$shell_rc" ]; then
-        echo -e "${YELLOW}No .zshrc or .bashrc found. Skipping aliases.${NC}"
+        echo -e "${YELLOW}.zshrc 또는 .bashrc를 찾을 수 없습니다. alias 설정을 건너뜁니다.${NC}"
         return 0
     fi
 
     local marker="# Claude Code aliases"
     if grep -q "$marker" "$shell_rc" 2>/dev/null; then
-        echo -e "  ${GREEN}✓${NC} Aliases already configured in $(basename "$shell_rc")"
+        echo -e "  ${GREEN}✓${NC} $(basename "$shell_rc") 에 alias가 이미 설정되어 있습니다"
         return 0
     fi
 
@@ -350,26 +347,26 @@ alias cc='claude'
 alias ccr='claude --resume'
 ALIASES
 
-    echo -e "  ${GREEN}✓${NC} Added aliases to $(basename "$shell_rc")"
+    echo -e "  ${GREEN}✓${NC} $(basename "$shell_rc") 에 alias 추가 완료"
     echo "    cc  → claude"
     echo "    ccr → claude --resume"
 }
 
-# 9. Verify installation
+# 9. 설치 검증
 verify() {
     echo ""
-    echo "Verifying installation..."
+    echo "설치 검증 중..."
 
     local errors=0
 
     for item in agents rules commands scripts skills cc-chips cc-chips-custom hooks settings.json; do
         if [ -L "$CLAUDE_DIR/$item" ] && [ ! -e "$CLAUDE_DIR/$item" ]; then
-            echo -e "  ${RED}✗${NC} $item (broken symlink)"
+            echo -e "  ${RED}✗${NC} $item (손상된 심볼릭 링크)"
             errors=$((errors + 1))
         elif [ -L "$CLAUDE_DIR/$item" ] || [ -e "$CLAUDE_DIR/$item" ]; then
             echo -e "  ${GREEN}✓${NC} $item"
         else
-            echo -e "  ${RED}✗${NC} $item (not found)"
+            echo -e "  ${RED}✗${NC} $item (찾을 수 없음)"
             errors=$((errors + 1))
         fi
     done
@@ -377,24 +374,21 @@ verify() {
     return $errors
 }
 
-# 10. Write forge metadata
+# 10. forge 메타데이터 기록
 write_meta() {
     echo ""
-    echo "Writing forge metadata..."
+    echo "forge 메타데이터 기록 중..."
 
-    # install_mode 판단: agents가 symlink이면 symlink, 아니면 copy
     local install_mode="symlink"
     if [ ! -L "$CLAUDE_DIR/agents" ] && [ -d "$CLAUDE_DIR/agents" ]; then
         install_mode="copy"
     fi
 
-    # plugin.json에서 버전 읽기
     local version="1.0.0"
     if [ -f "$REPO_DIR/.claude-plugin/plugin.json" ] && command -v jq >/dev/null; then
         version=$(jq -r '.version // "1.0.0"' "$REPO_DIR/.claude-plugin/plugin.json")
     fi
 
-    # git 정보
     local git_commit=""
     local remote_url=""
     if command -v git >/dev/null && [ -d "$REPO_DIR/.git" ]; then
@@ -405,7 +399,6 @@ write_meta() {
     local now
     now=$(date +"%Y-%m-%dT%H:%M:%S%z" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%S")
 
-    # 기존 메타파일이 있으면 installed_at 보존
     local installed_at="$now"
     if [ -f "$CLAUDE_DIR/.forge-meta.json" ] && command -v jq >/dev/null; then
         local prev_installed
@@ -415,7 +408,6 @@ write_meta() {
         fi
     fi
 
-    # jq로 안전하게 JSON 생성 (경로 인젝션 방지)
     jq -n \
       --arg repo_path "$REPO_DIR" \
       --arg install_mode "$install_mode" \
@@ -440,22 +432,37 @@ write_meta() {
     echo -e "  ${GREEN}✓${NC} .forge-meta.json"
 }
 
-# 11. Install work tracker (Supabase sync)
-install_work_tracker() {
-    local wt_script="$REPO_DIR/setup/work-tracker-install.sh"
-    if [ -f "$wt_script" ]; then
+# 11. Discord 봇 설정
+install_discord() {
+    local discord_script="$REPO_DIR/setup/discord.sh"
+    if [ -f "$discord_script" ]; then
         echo ""
-        read -p "Install Work Tracker (Claude Code usage tracking → Supabase)? (y/n) " -n 1 -r
+        read -p "Discord 봇 연결을 지금 설정하시겠습니까? (y/n) " -n 1 -r
         echo ""
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            REPO_DIR="$REPO_DIR" bash "$wt_script"
+            bash "$discord_script"
         else
-            echo "Skipping Work Tracker installation."
+            echo "나중에 ./setup/discord.sh 로 실행할 수 있습니다."
         fi
     fi
 }
 
-# Main
+# 12. Work Tracker 설치 (Supabase 연동)
+install_work_tracker() {
+    local wt_script="$REPO_DIR/setup/work-tracker-install.sh"
+    if [ -f "$wt_script" ]; then
+        echo ""
+        read -p "Work Tracker를 설치하시겠습니까? (Claude Code 사용량 추적 → Supabase) (y/n) " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            REPO_DIR="$REPO_DIR" bash "$wt_script"
+        else
+            echo "Work Tracker 설치를 건너뜁니다."
+        fi
+    fi
+}
+
+# 메인
 main() {
     check_deps
     init_submodules
@@ -465,22 +472,25 @@ main() {
 
     if verify; then
         echo ""
-        echo -e "${GREEN}Symlinks created successfully!${NC}"
+        echo -e "${GREEN}심볼릭 링크 생성 완료!${NC}"
 
-        # Write forge metadata
+        # forge 메타데이터 기록
         write_meta
 
-        # Setup shell aliases
+        # 쉘 alias 설정
         setup_shell_aliases
 
-        # Install MCP servers
+        # MCP 서버 설치
         install_mcp_servers
 
-        # Install external skills
+        # 외부 스킬 설치
         install_external_skills
 
-        # Install work tracker
+        # Work Tracker 설치
         install_work_tracker
+
+        # Discord 봇 설정
+        install_discord
 
         echo ""
         cat << COMPLETE
@@ -508,7 +518,7 @@ main() {
 COMPLETE
     else
         echo ""
-        echo -e "${RED}Installation completed with errors${NC}"
+        echo -e "${RED}오류가 발생하여 설치가 완료되지 않았습니다${NC}"
         exit 1
     fi
 }
